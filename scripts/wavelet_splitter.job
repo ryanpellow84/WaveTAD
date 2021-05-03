@@ -1,0 +1,210 @@
+#!/bin/bash
+
+##
+#$ -S /bin/bash
+##
+#### This is an example submission script.
+#### The lines that begin with `#$` are used
+#### as arguments to qsub, while lines that
+#### start with just `##` are comments
+##
+####Send e-mail at beginning/end/suspension of job
+#$-m bes
+##
+####E-mail address to send to
+#$-M ryan-pellow@uiowa.edu
+##
+#### The below line determines how many CPUs
+#### your job will request. Only set it higher 
+#### if you need the additional memory
+#$ -pe smp 56
+##
+#### If your job requires lots more memory,
+#### use one of the below options by removing
+#### the first two `#`
+####$ -l mid_mem
+####$ -l high_mem
+##
+#### The below option determines which queues 
+#### your job is submitted to. Multiple can be
+#### passed if separated by a comma
+#$ -q INFORMATICS,BIOLOGY,UI
+##
+#### The below option tells the compute node to 
+#### begin execution from the same directory as
+#### where you run the qsub. Otherwise, it is 
+#### executed from '~/' -- which is where your
+#### log file will end up. 
+#$ -cwd
+##
+#### The remining options all deal with making
+#### sure your log file is in the correct format
+#$ -j y
+#$ -o $JOB_NAME.log 
+#$ -ckpt user
+##################
+## DON'T FORGET ##
+##  TO SET THE  ## 
+##   JOB NAME   ##
+##################
+####$ -N wavelet_splitter
+
+
+#### The below variables are a helpful way to
+#### avoid having to repeat long file paths many
+#### times. You may need to add more variables
+#### as we do more analyses.
+SCRATCH=$1
+R_PROG=$2
+OUT_DIR=$3
+BAM1=$4
+BAM2=$5
+SAM1=$6
+SAM2=$7
+RIGHT_COV=$8
+LEFT_COV=$9
+BED1=${10}
+BED2=${11}
+BED3=${12}
+BED4=${13}
+BED5=${14}
+BED6=${15}
+CHR_SIZES=${16}
+
+echo $SCRATCH
+echo $R_PROG
+echo $OUT_DIR
+echo $BAM1
+echo $BAM2
+echo $SAM1
+echo $SAM2
+echo $RIGHT_COV
+echo $LEFT_COV
+echo $BED1
+echo $BED2
+echo $BED3
+echo $BED4
+echo $BED5
+echo $BED6
+echo $CHR_SIZES
+
+#### The below lines print the date to the log
+#### and then store it as a variable
+date
+start=`date +%s`
+
+
+########################################
+## Put the commands you are executing ##
+## inside of the " " on the next line ##
+## so they will be printed to the log ##
+########################################
+CMD="
+module load samtools
+samtools view -F 4 \
+$OUT_DIR/$BAM1 \
+| cut -f 1-15 \
+| sed 's/	4	\*	/	4	\*	0	0	/g' \
+| awk '$2 == "0" || $2 == "16"' \
+> $SCRATCH/$SAM1
+cut -f 1-4 $SCRATCH/$SAM1 > $SCRATCH/$BED1
+
+samtools view -F 4 \
+$OUT_DIR/$BAM2 \
+| cut -f 1-15 \
+| sed 's/	4	\*	/	4	\*	0	0	/g' \
+| awk '$2 == "0" || $2 == "16"' \
+> $SCRATCH/$SAM2
+cut -f 1-4 $SCRATCH/$SAM2 > $SCRATCH/$BED2
+
+
+READ_LEN=$(awk '{print $10}' $SCRATCH/$SAM1 | head -n 1 | wc -m)
+echo $READ_LEN
+module load R
+R CMD BATCH --no-save --no-restore "--args $SCRATCH/$BED1 $SCRATCH/$BED2 $SCRATCH/$BED3 $SCRATCH/$BED4 $READ_LEN $CHR_SIZES" $R_PROG
+
+module load bedtools
+bedtools genomecov \
+-i $SCRATCH/$BED3 \
+-g $CHR_SIZES \
+-d \
+> $SCRATCH/$BED5
+
+awk '$3 != "0"' $SCRATCH/$BED5 > $OUT_DIR/$RIGHT_COV
+
+
+bedtools genomecov \
+-i $SCRATCH/$BED4 \
+-g $CHR_SIZES \
+-d \
+> $SCRATCH/$BED6
+
+awk '$3 != "0"' $SCRATCH/$BED6 > $OUT_DIR/$LEFT_COV
+
+"
+
+
+#### The below commands prints the text you
+#### assigned to the CMD variable to the log
+echo "**************************************"
+echo "commands=$CMD"
+echo "**************************************"
+
+########################################
+## Put the commands you are executing ##
+##  in the lines below this comment,  ##
+##   so they are actually  executed   ##
+########################################
+
+if [ -f "$OUT_DIR/$LEFT_COV" ]; then
+        echo "$OUT_DIR/$LEFT_COV exists" 
+else
+
+	module load samtools
+	samtools view -F 4 $OUT_DIR/$BAM1 | cut -f 1-15 | sed 's/	4	\*	/	4	\*	0	0	/g' | awk '$2 == "0" || $2 == "16"' > $SCRATCH/$SAM1
+	cut -f 1-4 $SCRATCH/$SAM1 > $SCRATCH/$BED1
+	
+	samtools view -F 4 $OUT_DIR/$BAM2 | cut -f 1-15 | sed 's/	4	\*	/	4	\*	0	0	/g' | awk '$2 == "0" || $2 == "16"' > $SCRATCH/$SAM2
+	cut -f 1-4 $SCRATCH/$SAM2 > $SCRATCH/$BED2
+	
+	READ_LEN=$(awk '{print $10}' $SCRATCH/$SAM1 | head -n 1 | wc -m)
+	echo $READ_LEN
+	
+	rm $SCRATCH/$SAM1
+	rm $SCRATCH/$SAM2
+	
+	module load R
+	R CMD BATCH --no-save --no-restore "--args $SCRATCH/$BED1 $SCRATCH/$BED2 $SCRATCH/$BED3 $SCRATCH/$BED4 $READ_LEN $CHR_SIZES" $R_PROG
+	
+	rm $SCRATCH/$BED1
+	rm $SCRATCH/$BED2
+	
+	module load bedtools
+	bedtools genomecov -i $SCRATCH/$BED3 -g $CHR_SIZES -d > $SCRATCH/$BED5
+	
+	rm $SCRATCH/$BED3
+
+	awk '$3 != "0"' $SCRATCH/$BED5 > $OUT_DIR/$RIGHT_COV
+
+	rm $SCRATCH/$BED5
+
+	bedtools genomecov -i $SCRATCH/$BED4 -g $CHR_SIZES -d > $SCRATCH/$BED6
+
+	rm $SCRATCH/$BED4
+
+	awk '$3 != "0"' $SCRATCH/$BED6 > $OUT_DIR/$LEFT_COV
+	
+	rm $SCRATCH/$BED6
+
+fi
+
+
+#### The below commands print the date that your
+#### job finished running to the log, and then
+#### calcualtes the total amount of time it took
+#### for the job to complete
+date
+end=`date +%s`
+runtime=$((end-start))
+echo "runtime=$runtime secs"
+
