@@ -84,6 +84,7 @@ MAD_VAL3=${NAM}_10kb_mad_threshold_value.txt
 MAD_VAL4=${NAM}_25kb_mad_threshold_value.txt
 MAD_VAL5=${NAM}_50kb_mad_threshold_value.txt
 CHR_ONLY=${NAM}_chromosomes_only.txt
+RESTSITES=${NAM}_dpnII_sites.bed
 awk '{print $1}' $CHROM_SIZES > $CHR_ONLY
 readarray CHR_ARR < $CHR_ONLY
 
@@ -158,22 +159,25 @@ WUBBA=${OUT_DIR}/${NAM}_TAD_domains_wubba_topdom_collab_results.bed
 ####awk '$3 != "0"' $BED5 > $RIGHT_COV
 ####awk '$3 != "0"' $BED6 > $LEFT_COV
 
+####hicFindRestSite -f $REF -p GATC -o $RESTSITES
+
 #### Build Matrix ####
 ####if (($BIG_CHR < 35000000)); then
-####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8
+####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
 ####fi
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8
-hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -r 3R:25000000-31000000
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
 	
 #### Correct Matrix ####
-####readarray CHR_ARR < $CHR_ONLY
-####if (($BIG_CHR < 35000000)); then
+readarray CHR_ARR < $CHR_ONLY
+if (($BIG_CHR < 35000000)); then
 ####	R CMD BATCH --no-save --no-restore "--args $BUILD_LOG1 $MAD_VAL1" $R_PROG
 ####	VAL1=$(head -n 1 $MAD_VAL1)
 ####	hicCorrectMatrix correct --matrix $OUT_DIR/$COOL1 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
-####fi
+	hicCorrectMatrix correct --matrix $COOL1 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
+fi
 ####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG2 $MAD_VAL2" $R_PROG
 ####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG3 $MAD_VAL3" $R_PROG
 ####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG4 $MAD_VAL4" $R_PROG
