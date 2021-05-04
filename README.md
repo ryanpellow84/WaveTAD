@@ -5,9 +5,14 @@
 
 ## Installation
 
+Create conda environment
 ```bash
 conda create -n WaveTAD python=3.8
 conda activate WaveTAD
+```
+
+Install packages
+```bash
 conda install -c r r-essentials
 R
 install.packages("remotes")
