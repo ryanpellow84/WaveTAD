@@ -27,4 +27,6 @@ conda install samtools -c bioconda
 conda install bedtools -c bioconda
 conda install hicexplorer -c bioconda -c conda-forge
 ```
+## Walkthrough
+
 
