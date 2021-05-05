@@ -49,6 +49,7 @@ BED6=${NAM}_left_cov_full.bed
 
 #### R Programs ####
 R_PROG1=wavelet_splitter.R
+R_PROG2=topdom.R
 
 #### Cool Files ####
 COOL1=${NAM}_1kb.cool
@@ -68,14 +69,13 @@ NORM4=${NAM}_25kb_norm_corrected.cool
 NORM5=${NAM}_50kb_norm_corrected.cool
 
 #### Contact Files ####
-CONTACTS1=${OUT_DIR}/${NAM}_1kb_contacts.txt
-CONTACTS2=${OUT_DIR}/${NAM}_5kb_contacts.txt
-CONTACTS3=${OUT_DIR}/${NAM}_10kb_contacts.txt
-CONTACTS4=${OUT_DIR}/${NAM}_25kb_contacts.txt
-CONTACTS5=${OUT_DIR}/${NAM}_50kb_contacts.txt
+CONTACTS1=${NAM}_1kb_contacts.txt
+CONTACTS2=${NAM}_5kb_contacts.txt
+CONTACTS3=${NAM}_10kb_contacts.txt
+CONTACTS4=${NAM}_25kb_contacts.txt
+CONTACTS5=${NAM}_50kb_contacts.txt
 
 #### Miscellaneous Files ####
-HEADER=${OUT_DIR}/${NAM}_header.txt
 RIGHT_COV=${NAM}_right_coverage.txt
 LEFT_COV=${NAM}_left_coverage.txt
 MAD_VAL1=${NAM}_1kb_mad_threshold_value.txt
@@ -108,26 +108,26 @@ LOOP_COOL2=${COOL2}
 LOOP_COOL3=${COOL3}
 LOOP_COOL4=${COOL4}
 LOOP_COOL5=${COOL5}
-LOOPS1=${OUT_DIR}/${NAM}_1kb_loops_hicexplorer.bedgraph
-LOOPS2=${OUT_DIR}/${NAM}_5kb_loops_hicexplorer.bedgraph
-LOOPS3=${OUT_DIR}/${NAM}_10kb_loops_hicexplorer.bedgraph
-LOOPS4=${OUT_DIR}/${NAM}_25kb_loops_hicexplorer.bedgraph
-LOOPS5=${OUT_DIR}/${NAM}_50kb_loops_hicexplorer.bedgraph
+LOOPS1=${NAM}_1kb_loops_hicexplorer.bedgraph
+LOOPS2=${NAM}_5kb_loops_hicexplorer.bedgraph
+LOOPS3=${NAM}_10kb_loops_hicexplorer.bedgraph
+LOOPS4=${NAM}_25kb_loops_hicexplorer.bedgraph
+LOOPS5=${NAM}_50kb_loops_hicexplorer.bedgraph
 
 #### TopDom Domains ####
-TEMP_MAT1=${OUT_DIR}/${NAM}_1kb_temp_hic_matrix.bed
-TEMP_MAT2=${OUT_DIR}/${NAM}_5kb_temp_hic_matrix.bed
-TEMP_MAT3=${OUT_DIR}/${NAM}_10kb_temp_hic_matrix.bed
-TEMP_MAT4=${OUT_DIR}/${NAM}_25kb_temp_hic_matrix.bed
-TEMP_MAT5=${OUT_DIR}/${NAM}_50kb_temp_hic_matrix.bed
-TOPDOM1=${OUT_DIR}/${NAM}_1kb_tad_domains_topdom.bed
-TOPDOM2=${OUT_DIR}/${NAM}_5kb_tad_domains_topdom.bed
-TOPDOM3=${OUT_DIR}/${NAM}_10kb_tad_domains_topdom.bed
-TOPDOM4=${OUT_DIR}/${NAM}_25kb_tad_domains_topdom.bed
-TOPDOM5=${OUT_DIR}/${NAM}_50kb_tad_domains_topdom.bed
+TEMP_MAT1=${NAM}_1kb_temp_hic_matrix.bed
+TEMP_MAT2=${NAM}_5kb_temp_hic_matrix.bed
+TEMP_MAT3=${NAM}_10kb_temp_hic_matrix.bed
+TEMP_MAT4=${NAM}_25kb_temp_hic_matrix.bed
+TEMP_MAT5=${NAM}_50kb_temp_hic_matrix.bed
+TOPDOM1=${NAM}_1kb_tad_domains_topdom.bed
+TOPDOM2=${NAM}_5kb_tad_domains_topdom.bed
+TOPDOM3=${NAM}_10kb_tad_domains_topdom.bed
+TOPDOM4=${NAM}_25kb_tad_domains_topdom.bed
+TOPDOM5=${NAM}_50kb_tad_domains_topdom.bed
 
 #### WUBBA Domains ####
-WUBBA=${OUT_DIR}/${NAM}_TAD_domains_wubba_topdom_collab_results.bed
+WUBBA=${NAM}_TAD_domains_wubba_topdom_collab_results.bed
 
 #### BWA ####
 ####gunzip $GZFASTQ1
@@ -165,31 +165,20 @@ WUBBA=${OUT_DIR}/${NAM}_TAD_domains_wubba_topdom_collab_results.bed
 ####if (($BIG_CHR < 35000000)); then
 ####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
 ####fi
-hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
-hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
-hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
 ####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
 	
 #### Correct Matrix ####
 readarray CHR_ARR < $CHR_ONLY
-if (($BIG_CHR < 35000000)); then
-####	R CMD BATCH --no-save --no-restore "--args $BUILD_LOG1 $MAD_VAL1" $R_PROG
-####	VAL1=$(head -n 1 $MAD_VAL1)
-####	hicCorrectMatrix correct --matrix $OUT_DIR/$COOL1 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
-	hicCorrectMatrix correct --matrix $COOL1 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
-fi
-####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG2 $MAD_VAL2" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG3 $MAD_VAL3" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG4 $MAD_VAL4" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $BUILD_LOG5 $MAD_VAL5" $R_PROG
-####VAL2=$(head -n 1 $MAD_VAL2)
-####VAL3=$(head -n 1 $MAD_VAL3)
-####VAL4=$(head -n 1 $MAD_VAL4)
-####VAL5=$(head -n 1 $MAD_VAL5)
-####hicCorrectMatrix correct --matrix $OUT_DIR/$COOL2 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT2
-####hicCorrectMatrix correct --matrix $OUT_DIR/$COOL3 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT3
-####hicCorrectMatrix correct --matrix $OUT_DIR/$COOL4 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT4
-####hicCorrectMatrix correct --matrix $OUT_DIR/$COOL5 --filterThreshold $VAL1 5 --chromosomes ${CHR_ARR[@]} -o $CORRECT5
+####if (($BIG_CHR < 35000000)); then
+####	hicCorrectMatrix correct --matrix $COOL1 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
+####fi
+####hicCorrectMatrix correct --matrix $COOL2 --chromosomes ${CHR_ARR[@]} -o $CORRECT2
+####hicCorrectMatrix correct --matrix $COOL3 --chromosomes ${CHR_ARR[@]} -o $CORRECT3
+####hicCorrectMatrix correct --matrix $COOL4 --chromosomes ${CHR_ARR[@]} -o $CORRECT4
+####hicCorrectMatrix correct --matrix $COOL5 --chromosomes ${CHR_ARR[@]} -o $CORRECT5
 
 #### Normalize Matrix ####
 ####if (($BIG_CHR < 35000000)); then
@@ -209,14 +198,23 @@ fi
 ####hicDetectLoops -m $LOOP_COOL4 -o $LOOPS4 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
 ####hicDetectLoops -m $LOOP_COOL5 -o $LOOPS5 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
 
-#### TopDom ####
+#### Cooler Dump ####
 ####if (($BIG_CHR < 35000000)); then
-####	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG
+####	cooler dump -t pixels --header --join $NORM1 -o $CONTACTS1
 ####fi
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG
+####cooler dump -t pixels --header --join $NORM2 -o $CONTACTS2
+####cooler dump -t pixels --header --join $NORM3 -o $CONTACTS3
+####cooler dump -t pixels --header --join $NORM4 -o $CONTACTS4
+####cooler dump -t pixels --header --join $NORM5 -o $CONTACTS5
+
+#### TopDom ####
+if (($BIG_CHR < 35000000)); then
+	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG2
+fi
+R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG2
 	
 #### WUBBA-TopDom Collab ####
 
@@ -229,13 +227,13 @@ fi
 ####	WUBBA_RESULT_VEC+=$WUBBA_RESULT
 ####	if (($BIG_CHR < 35000000)); then
 ####		GEN_SIZE=small
-####		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > $OUT_DIR/${NAM}_${i}_left_coverage.txt
-####		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > $OUT_DIR/${NAM}_${i}_right_coverage.txt
-####		R CMD BATCH --no-save --no-restore "--args $OUT_DIR/${NAM}_${i}_left_coverage.txt $OUT_DIR/${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
+####		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > ${NAM}_${i}_left_coverage.txt
+####		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > ${NAM}_${i}_right_coverage.txt
+####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
 
 ####	else
 ####		GEN_SIZE=big
-####		R CMD BATCH --no-save --no-restore "--args $OUT_DIR/${NAM}_${i}_left_coverage.txt $OUT_DIR/${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
+####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
 ####	fi
 ####done
 	
