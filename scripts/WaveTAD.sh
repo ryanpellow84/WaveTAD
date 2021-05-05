@@ -52,6 +52,7 @@ BED6=${NAM}_left_cov_full.bed
 R_PROG1=wavelet_splitter.R
 R_PROG2=topdom.R
 R_PROG3=WaveTAD.R
+R_PROG4=merge_WaveTAD_outputs.R
 
 #### Cool Files ####
 COOL1=${NAM}_1kb.cool
@@ -129,7 +130,7 @@ TOPDOM4=${NAM}_25kb_tad_domains_topdom.bed
 TOPDOM5=${NAM}_50kb_tad_domains_topdom.bed
 
 #### WAVETAD Domains ####
-WAVETAD=${NAM}_TAD_domains_WaveTAD_results.bed
+WAVETAD_FINAL=${NAM}_WaveTAD_results.bed
 
 #### BWA ####
 ####gunzip $GZFASTQ1
@@ -224,22 +225,22 @@ PASS_FILE_VEC=()
 WAVETAD_RESULT_VEC=()
 for i in ${CHR_ARR[@]}
 do
-	WAVETAD_RESULT=${NAM}_TAD_domains_WaveTAD_results_${i}.bed
+	WAVETAD_RESULT=${NAM}_WaveTAD_results_${i}.bed
 	WAVETAD_RESULT_VEC+=$WAVETAD_RESULT
 	if (($BIG_CHR < 35000000)); then
 		GEN_SIZE=small
 		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > ${NAM}_${i}_left_coverage.txt
 		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > ${NAM}_${i}_right_coverage.txt
-		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
+####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
 
 	else
 		GEN_SIZE=big
-		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
+####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
 	fi
 done
 	
 #### Merge WaveTAD Results ####
-####R CMD BATCH --no-save --no-restore "--args $BEST_FILES $BEST" $R_PROG
+R CMD BATCH --no-save --no-restore "--args $WAVETAD_RESULT_VEC $WAVETAD_FINAL" $R_PROG4
 	
 
 
