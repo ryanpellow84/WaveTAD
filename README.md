@@ -22,7 +22,7 @@ conda install hicexplorer -c bioconda -c conda-forge
 ```
 
 Install R packages
-```bash
+```r
 R
 install.packages("remotes")
 remotes::install_github("HenrikBengtsson/TopDom", ref="master")
