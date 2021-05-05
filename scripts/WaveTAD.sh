@@ -6,13 +6,14 @@ GZFASTQ2=$2
 REF=$3
 CHROM_SIZES=$4
 OUT_DIR=$5
+REST_SEQ=$6
+DANGLE_SEQ=$7
 
 #### Create Directory ####
 NAM=$(echo $GZFASTQ1 | sed 's/\_1.fastq.gz//g')
 echo $NAM
 BIG_CHR=$(head -n 1 ${CHROM_SIZES} | cut -f 2)
 QCFOLDER=$OUT_DIR/qcfolder
-mkdir -p QCFOLDER
 
 #### Resolution Name ####
 RES_NAM1=1kb
@@ -50,6 +51,7 @@ BED6=${NAM}_left_cov_full.bed
 #### R Programs ####
 R_PROG1=wavelet_splitter.R
 R_PROG2=topdom.R
+R_PROG3=WaveTAD.R
 
 #### Cool Files ####
 COOL1=${NAM}_1kb.cool
@@ -126,8 +128,8 @@ TOPDOM3=${NAM}_10kb_tad_domains_topdom.bed
 TOPDOM4=${NAM}_25kb_tad_domains_topdom.bed
 TOPDOM5=${NAM}_50kb_tad_domains_topdom.bed
 
-#### WUBBA Domains ####
-WUBBA=${NAM}_TAD_domains_wubba_topdom_collab_results.bed
+#### WAVETAD Domains ####
+WAVETAD=${NAM}_TAD_domains_WaveTAD_results.bed
 
 #### BWA ####
 ####gunzip $GZFASTQ1
@@ -159,16 +161,16 @@ WUBBA=${NAM}_TAD_domains_wubba_topdom_collab_results.bed
 ####awk '$3 != "0"' $BED5 > $RIGHT_COV
 ####awk '$3 != "0"' $BED6 > $LEFT_COV
 
-####hicFindRestSite -f $REF -p GATC -o $RESTSITES
+####hicFindRestSite -f $REF -p REST_SEQ -o $RESTSITES
 
 #### Build Matrix ####
 ####if (($BIG_CHR < 35000000)); then
-####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
 ####fi
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq GATC --danglingSequence GATC
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
 	
 #### Correct Matrix ####
 readarray CHR_ARR < $CHR_ONLY
@@ -208,34 +210,33 @@ readarray CHR_ARR < $CHR_ONLY
 ####cooler dump -t pixels --header --join $NORM5 -o $CONTACTS5
 
 #### TopDom ####
-if (($BIG_CHR < 35000000)); then
-	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG2
-fi
-R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG2
-R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG2
-R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG2
-R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG2
+####if (($BIG_CHR < 35000000)); then
+####	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG2
+####fi
+####R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG2
+####R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG2
+####R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG2
+####R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG2
 	
-#### WUBBA-TopDom Collab ####
+#### WaveTAD ####
 
-####JOB_ID_VEC=()
-####PASS_FILE_VEC=()
-####WUBBA_RESULT_VEC=()
-####for i in ${CHR_ARR[@]}
-####do
-####	WUBBA_RESULT=${NAM}_TAD_domains_wubba_topdom_results_${i}.bed
-####	WUBBA_RESULT_VEC+=$WUBBA_RESULT
-####	if (($BIG_CHR < 35000000)); then
-####		GEN_SIZE=small
-####		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > ${NAM}_${i}_left_coverage.txt
-####		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > ${NAM}_${i}_right_coverage.txt
-####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
+PASS_FILE_VEC=()
+WAVETAD_RESULT_VEC=()
+for i in ${CHR_ARR[@]}
+do
+	WAVETAD_RESULT=${NAM}_TAD_domains_WaveTAD_results_${i}.bed
+	WAVETAD_RESULT_VEC+=$WAVETAD_RESULT
+	if (($BIG_CHR < 35000000)); then
+		GEN_SIZE=small
+		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > ${NAM}_${i}_left_coverage.txt
+		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > ${NAM}_${i}_right_coverage.txt
+		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
 
-####	else
-####		GEN_SIZE=big
-####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WUBBA_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG ${NAM}_wubba_topdom_collab_${i}.Rout
-####	fi
-####done
+	else
+		GEN_SIZE=big
+		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
+	fi
+done
 	
 #### Merge WaveTAD Results ####
 ####R CMD BATCH --no-save --no-restore "--args $BEST_FILES $BEST" $R_PROG
