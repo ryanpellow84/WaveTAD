@@ -142,14 +142,14 @@ TOPDOM5=${NAM}_50kb_tad_domains_topdom.bed
 WAVETAD_FINAL=${NAM}_WaveTAD_results.bed
 
 #### BWA ####
-####gunzip $GZFASTQ1
-####gunzip $GZFASTQ2
+gunzip $GZFASTQ1
+gunzip $GZFASTQ2
 
 bwa mem -t 56 -E 50 -L 0 $REF $FASTQ1 | samtools view --threads 56 -bS - -o $BAM1
 bwa mem -t 56 -E 50 -L 0 $REF $FASTQ2 | samtools view --threads 56 -bS - -o $BAM2
 
-#### rm $FASTQ1
-#### rm $FASTQ2
+gzip $FASTQ1
+gzip $FASTQ2
 
 echo Completed Mapping
 
