@@ -9,6 +9,14 @@ OUT_DIR=$5
 REST_SEQ=$6
 DANGLE_SEQ=$7
 
+echo $GZFASTQ1
+echo $GZFASTQ2
+echo $REF
+echo $CHROM_SIZES
+echo $OUT_DIR
+echo $REST_SEQ
+echo $DANGLE_SEQ
+
 #### Create Directory ####
 NAM=$(echo $GZFASTQ1 | sed 's/\_1.fastq.gz//g')
 echo $NAM
@@ -90,6 +98,7 @@ CHR_ONLY=${NAM}_chromosomes_only.txt
 RESTSITES=${NAM}_dpnII_sites.bed
 awk '{print $1}' $CHROM_SIZES > $CHR_ONLY
 readarray CHR_ARR < $CHR_ONLY
+rm $CHR_ONLY
 
 #### Bin Sizes ####
 BIN_SIZE1=1000
@@ -136,92 +145,149 @@ WAVETAD_FINAL=${NAM}_WaveTAD_results.bed
 ####gunzip $GZFASTQ1
 ####gunzip $GZFASTQ2
 
-####echo $REF
-####echo $FASTQ1
-####echo $BAM1
+bwa mem -t 56 -E 50 -L 0 $REF $FASTQ1 | samtools view --threads 56 -bS - -o $BAM1
+bwa mem -t 56 -E 50 -L 0 $REF $FASTQ2 | samtools view --threads 56 -bS - -o $BAM2
 
-####bwa mem -t 56 -E 50 -L 0 $REF $FASTQ1 | samtools view --threads 56 -bS - -o $BAM1
-####bwa mem -t 56 -E 50 -L 0 $REF $FASTQ2 | samtools view --threads 56 -bS - -o $BAM2
+#### rm $FASTQ1
+#### rm $FASTQ2
 
-####samtools view $BAM1 > $OUT_DIR/sam_test.sam
+echo Completed Mapping
 
 #### Wavelet Splitter ####
-####samtools view -F 4 $BAM1 | cut -f 1-15 | sed 's/       4       \*      /       4       \*      0       0       /g' | awk '$2 == "0" || $2 == "16"' > $SAM1
-####cut -f 1-4 $SAM1 > $BED1
+samtools view -F 4 $BAM1 | cut -f 1-15 | sed 's/       4       \*      /       4       \*      0       0       /g' | awk '$2 == "0" || $2 == "16"' > $SAM1
+cut -f 1-4 $SAM1 > $BED1
 
-####samtools view -F 4 $BAM2 | cut -f 1-15 | sed 's/       4       \*      /       4       \*      0       0       /g' | awk '$2 == "0" || $2 == "16"' > $SAM2
-####cut -f 1-4 $SAM2 > $BED2
+samtools view -F 4 $BAM2 | cut -f 1-15 | sed 's/       4       \*      /       4       \*      0       0       /g' | awk '$2 == "0" || $2 == "16"' > $SAM2
+cut -f 1-4 $SAM2 > $BED2
 
-####READ_LEN=$(awk '{print $10}' $SAM1 | head -n 1 | wc -m)
+rm $SAM2
 
-####R CMD BATCH --no-save --no-restore "--args $BED1 $BED2 $BED3 $BED4 $READ_LEN $CHROM_SIZES" $R_PROG1
+READ_LEN=$(awk '{print $10}' $SAM1 | head -n 1 | wc -m)
 
-####bedtools genomecov -i $BED3 -g $CHROM_SIZES -d > $BED5
-####bedtools genomecov -i $BED4 -g $CHROM_SIZES -d > $BED6
+rm $SAM1
 
-####awk '$3 != "0"' $BED5 > $RIGHT_COV
-####awk '$3 != "0"' $BED6 > $LEFT_COV
+R CMD BATCH --no-save --no-restore "--args $BED1 $BED2 $BED3 $BED4 $READ_LEN $CHROM_SIZES" $R_PROG1
 
-####hicFindRestSite -f $REF -p REST_SEQ -o $RESTSITES
+rm $BED1
+rm $BED2
+
+bedtools genomecov -i $BED3 -g $CHROM_SIZES -d > $BED5
+bedtools genomecov -i $BED4 -g $CHROM_SIZES -d > $BED6
+
+rm $BED3
+rm $BED4
+
+awk '$3 != "0"' $BED5 > $RIGHT_COV
+awk '$3 != "0"' $BED6 > $LEFT_COV
+
+rm $BED5
+rm $BED6
+
+echo Calculated Hi-C Coverages
+
+hicFindRestSite -f $REF -p $REST_SEQ -o $RESTSITES
 
 #### Build Matrix ####
-####if (($BIG_CHR < 35000000)); then
-####	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
-####fi
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
-####hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 8 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
-	
+if (($BIG_CHR < 35000000)); then
+	hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE1 -o $COOL1 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 56 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+fi
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE2 -o $COOL2 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 56 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE3 -o $COOL3 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 56 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE4 -o $COOL4 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 56 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+hicBuildMatrix -s $BAM1 $BAM2 -bs $BIN_SIZE5 -o $COOL5 --skipDuplicationCheck --QCfolder $QCFOLDER --threads 56 -rs $RESTSITES -seq $REST_SEQ --danglingSequence $DANGLE_SEQ
+
+rm $BAM1
+rm $BAM2
+rm $RESTSITES
+
+echo Built Matrices
+
 #### Correct Matrix ####
-readarray CHR_ARR < $CHR_ONLY
-####if (($BIG_CHR < 35000000)); then
-####	hicCorrectMatrix correct --matrix $COOL1 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
-####fi
-####hicCorrectMatrix correct --matrix $COOL2 --chromosomes ${CHR_ARR[@]} -o $CORRECT2
-####hicCorrectMatrix correct --matrix $COOL3 --chromosomes ${CHR_ARR[@]} -o $CORRECT3
-####hicCorrectMatrix correct --matrix $COOL4 --chromosomes ${CHR_ARR[@]} -o $CORRECT4
-####hicCorrectMatrix correct --matrix $COOL5 --chromosomes ${CHR_ARR[@]} -o $CORRECT5
+if (($BIG_CHR < 35000000)); then
+	hicCorrectMatrix correct --matrix $COOL1 --chromosomes ${CHR_ARR[@]} -o $CORRECT1
+fi
+hicCorrectMatrix correct --matrix $COOL2 --chromosomes ${CHR_ARR[@]} -o $CORRECT2
+hicCorrectMatrix correct --matrix $COOL3 --chromosomes ${CHR_ARR[@]} -o $CORRECT3
+hicCorrectMatrix correct --matrix $COOL4 --chromosomes ${CHR_ARR[@]} -o $CORRECT4
+hicCorrectMatrix correct --matrix $COOL5 --chromosomes ${CHR_ARR[@]} -o $CORRECT5
+
+echo Corrected Matrices
 
 #### Normalize Matrix ####
-####if (($BIG_CHR < 35000000)); then
-####	hicNormalize -m $CORRECT1 --normalize norm_range -o $NORM1
-####fi
-####hicNormalize -m $CORRECT2 --normalize norm_range -o $NORM2
-####hicNormalize -m $CORRECT3 --normalize norm_range -o $NORM3
-####hicNormalize -m $CORRECT4 --normalize norm_range -o $NORM4
-####hicNormalize -m $CORRECT5 --normalize norm_range -o $NORM5
+if (($BIG_CHR < 35000000)); then
+	hicNormalize -m $CORRECT1 --normalize norm_range -o $NORM1
+	rm $CORRECT1
+fi
+hicNormalize -m $CORRECT2 --normalize norm_range -o $NORM2
+hicNormalize -m $CORRECT3 --normalize norm_range -o $NORM3
+hicNormalize -m $CORRECT4 --normalize norm_range -o $NORM4
+hicNormalize -m $CORRECT5 --normalize norm_range -o $NORM5
+
+rm $CORRECT2
+rm $CORRECT3
+rm $CORRECT4
+rm $CORRECT5
+
+echo Normalized Matrices
 
 #### Detect Loops ####
-####if (($BIG_CHR < 35000000)); then
-####hicDetectLoops -m $LOOP_COOL1 -o $LOOPS1 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
-####fi
-####hicDetectLoops -m $LOOP_COOL2 -o $LOOPS2 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
-####hicDetectLoops -m $LOOP_COOL3 -o $LOOPS3 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
-####hicDetectLoops -m $LOOP_COOL4 -o $LOOPS4 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
-####hicDetectLoops -m $LOOP_COOL5 -o $LOOPS5 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+if (($BIG_CHR < 35000000)); then
+	hicDetectLoops -m $LOOP_COOL1 -o $LOOPS1 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+	rm $COOL1
+fi
+hicDetectLoops -m $LOOP_COOL2 -o $LOOPS2 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+hicDetectLoops -m $LOOP_COOL3 -o $LOOPS3 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+hicDetectLoops -m $LOOP_COOL4 -o $LOOPS4 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+hicDetectLoops -m $LOOP_COOL5 -o $LOOPS5 --chromosomes ${CHR_ARR[@]} -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
+
+rm $COOL2
+rm $COOL3
+rm $COOL4
+rm $COOL5
+
+echo Detected Loops
 
 #### Cooler Dump ####
-####if (($BIG_CHR < 35000000)); then
-####	cooler dump -t pixels --header --join $NORM1 -o $CONTACTS1
-####fi
-####cooler dump -t pixels --header --join $NORM2 -o $CONTACTS2
-####cooler dump -t pixels --header --join $NORM3 -o $CONTACTS3
-####cooler dump -t pixels --header --join $NORM4 -o $CONTACTS4
-####cooler dump -t pixels --header --join $NORM5 -o $CONTACTS5
+if (($BIG_CHR < 35000000)); then
+	cooler dump -t pixels --header --join $NORM1 -o $CONTACTS1
+	rm $NORM1
+fi
+cooler dump -t pixels --header --join $NORM2 -o $CONTACTS2
+cooler dump -t pixels --header --join $NORM3 -o $CONTACTS3
+cooler dump -t pixels --header --join $NORM4 -o $CONTACTS4
+cooler dump -t pixels --header --join $NORM5 -o $CONTACTS5
+
+rm $NORM2
+rm $NORM3
+rm $NORM4
+rm $NORM5
+
+echo Converted Matrices to Tables
 
 #### TopDom ####
-####if (($BIG_CHR < 35000000)); then
-####	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG2
-####fi
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG2
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG2
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG2
-####R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG2
-	
+if (($BIG_CHR < 35000000)); then
+	R CMD BATCH --no-save --no-restore "--args $CONTACTS1 $TEMP_MAT1 $TOPDOM1 $BIN_SIZE1 $CHROM_SIZES" $R_PROG2
+	rm $CONTACTS1
+	rm $TEMP_MAT1
+fi
+R CMD BATCH --no-save --no-restore "--args $CONTACTS2 $TEMP_MAT2 $TOPDOM2 $BIN_SIZE2 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS3 $TEMP_MAT3 $TOPDOM3 $BIN_SIZE3 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS4 $TEMP_MAT4 $TOPDOM4 $BIN_SIZE4 $CHROM_SIZES" $R_PROG2
+R CMD BATCH --no-save --no-restore "--args $CONTACTS5 $TEMP_MAT5 $TOPDOM5 $BIN_SIZE5 $CHROM_SIZES" $R_PROG2
+
+rm $CONTACTS2
+rm $CONTACTS3
+rm $CONTACTS4
+rm $CONTACTS5
+rm $TEMP_MAT2
+rm $TEMP_MAT3
+rm $TEMP_MAT4
+rm $TEMP_MAT5
+
+echo Applied Diamond Area Algorithm
+
 #### WaveTAD ####
 
-PASS_FILE_VEC=()
 WAVETAD_RESULT_VEC=()
 for i in ${CHR_ARR[@]}
 do
@@ -231,20 +297,42 @@ do
 		GEN_SIZE=small
 		awk -v myvar="${i}" '$1==myvar' $LEFT_COV > ${NAM}_${i}_left_coverage.txt
 		awk -v myvar="${i}" '$1==myvar' $RIGHT_COV > ${NAM}_${i}_right_coverage.txt
-####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
+		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM1 $TOPDOM2 $TOPDOM3 $TOPDOM4 $LOOPS1 $LOOPS2 $LOOPS3 $LOOPS4 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
 
 	else
 		GEN_SIZE=big
-####		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
+		R CMD BATCH --no-save --no-restore "--args ${NAM}_${i}_left_coverage.txt ${NAM}_${i}_right_coverage.txt $WAVETAD_RESULT $TOPDOM2 $TOPDOM3 $TOPDOM4 $TOPDOM5 $LOOPS2 $LOOPS3 $LOOPS4 $LOOPS5 ${i} $GEN_SIZE" $R_PROG3 WaveTAD_${i}.Rout
 	fi
+	rm ${NAM}_${i}_left_coverage.txt
+	rm ${NAM}_${i}_right_coverage.txt
 done
-	
+
+if (($BIG_CHR < 35000000)); then
+	rm $TOPDOM1
+	rm $LOOPS1
+fi
+rm $TOPDOM2
+rm $TOPDOM3
+rm $TOPDOM4
+rm $TOPDOM5
+rm $LOOPS2
+rm $LOOPS3
+rm $LOOPS4
+rm $LOOPS5
+rm $LEFT_COV
+rm $RIGHT_COV
+
+echo Applied WaveTAD
+
 #### Merge WaveTAD Results ####
 R CMD BATCH --no-save --no-restore "--args $WAVETAD_RESULT_VEC $WAVETAD_FINAL" $R_PROG4
-	
 
+echo Merged Results
 
-
+for i in ${CHR_ARR[@]}
+do
+	rm ${NAM}_WaveTAD_results_${i}.bed
+done
 
 
 

@@ -836,7 +836,7 @@ colnames(results) <- c("Chromosome", "Start", "End", "Boundary_5_Prime_Pval", "B
 write.table(results,
             results_file,
             row.names = FALSE,
-            col.names = FALSE,
+            col.names = TRUE,
             quote = FALSE,
             sep = "\t")
 

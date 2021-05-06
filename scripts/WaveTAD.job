@@ -59,12 +59,16 @@ GZFASTQ2=$2
 REF=$3
 CHROM_SIZES=$4
 OUT_DIR=$5
+REST_SEQ=$6
+DANGLE_SEQ=$7
 
 echo $GZFASTQ1
 echo $GZFASTQ2
 echo $REF
 echo $CHROM_SIZES
 echo $OUT_DIR
+echo $REST_SEQ
+echo $DANGLE_SEQ
 
 #### The below lines print the date to the log
 #### and then store it as a variable
@@ -95,7 +99,7 @@ echo "**************************************"
 ########################################
 
 conda activate WaveTAD
-sh WaveTAD.sh $GZFASTQ1 $GZFASTQ2 $REF $CHROM_SIZES $OUT_DIR
+sh WaveTAD.sh $GZFASTQ1 $GZFASTQ2 $REF $CHROM_SIZES $OUT_DIR $REST_SEQ $DANGLE_SEQ
 
 #### The below commands print the date that your
 #### job finished running to the log, and then
