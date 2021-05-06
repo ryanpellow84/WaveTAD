@@ -35,7 +35,7 @@ $ R
 > quit()
 ```
 
-## Quick Walkthrough (eta 75mins)(ERR153317[0,1,2,3])
+## Quick Walkthrough (eta 75mins) (ERR153317[0,1,2,3])
 Download FASTQ Files:
 [FASTQ1](https://www.dropbox.com/s/5laclm7m8gnr5hw/vaquerizas_3-4hpf_rep1_3R_25Mb_31Mb_1.fastq.gz?dl=0)
 [FASTQ2](https://www.dropbox.com/s/sg96jevst7g1ko7/vaquerizas_3-4hpf_rep1_3R_25Mb_31Mb_2.fastq.gz?dl=0)
@@ -70,7 +70,7 @@ Example Output:
 | ... | ... | ... | ... | ... | ... | ... | ... |
 |575| 3R | 26060150 | 28348436 | 0.0499273033452901 | 0.0469873372726448 | 0.00158143171430386 | 0.00000370996137707221 |
 
-## Complete Walkthrough (eta )(SRR1658528)
+## Complete Walkthrough (eta ) (SRR1658528)
 Download SRA File:
 SRA Number = 1658528
 
@@ -168,9 +168,9 @@ $ R CMD BATCH --no-save --no-restore "--args [Left Coverage for Specific Chromos
 
 Use WaveTAD to Call TADs for each Chromsome Independently (big genomes)
 ```bash
-$ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage for Specific Chromosome]
-$ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage for Specific Chromosome]
-$ R CMD BATCH --no-save --no-restore "--args [Left Coverage for Specific Chromosome] [Right Coverage for Specific Chromosome] [WaveTAD Results] [5kb TopDom Scores] [10kb TopDom Scores] [25kb TopDom Scores] [50kb TopDom Scores] [5kb Loops BedGraph] [10kb Loops BedGraph] [25kb Loops BedGraph] [50kb Loops BedGraph] [Chromosome] [Size of Biggest Chromsome]" WaveTAD.R  WaveTAD_[Chromsome].Rout
+$ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage Chromosome]
+$ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage Chromosome]
+$ R CMD BATCH --no-save --no-restore "--args [Left Coverage Chromosome] [Right Coverage Chromosome] [WaveTAD Results] [5kb TopDom Scores] [10kb TopDom Scores] [25kb TopDom Scores] [50kb TopDom Scores] [5kb Loops BedGraph] [10kb Loops BedGraph] [25kb Loops BedGraph] [50kb Loops BedGraph] [Chromosome] [Size of Biggest Chromsome]" WaveTAD.R  WaveTAD_[Chromsome].Rout
 ```
 
 
