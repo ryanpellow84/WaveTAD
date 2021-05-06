@@ -159,9 +159,9 @@ $ R CMD BATCH --no-save --no-restore "--args [50kb Contacts Table] [50kb TopDom 
 
 Use WaveTAD to Call TADs for each Chromsome Independently (small genomes and for this example):
 ```bash
-$ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage for Specific Chromosome]
-$ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage for Specific Chromosome]
-$ R CMD BATCH --no-save --no-restore "--args [Left Coverage for Specific Chromosome] [Right Coverage for Specific Chromosome] [WaveTAD Results] [1kb TopDom Scores] [5kb TopDom Scores] [10kb TopDom Scores] [25kb TopDom Scores] [1kb Loops BedGraph] [5kb Loops BedGraph] [10kb Loops BedGraph] [25kb Loops BedGraph] [Chromosome] [Size of Biggest Chromsome]" WaveTAD.R  WaveTAD_[Chromsome].Rout
+$ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage Chromosome]
+$ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage Chromosome]
+$ R CMD BATCH --no-save --no-restore "--args [Left Coverage Chromosome] [Right Coverage Chromosome] [WaveTAD Results] [1kb TopDom Scores] [5kb TopDom Scores] [10kb TopDom Scores] [25kb TopDom Scores] [1kb Loops BedGraph] [5kb Loops BedGraph] [10kb Loops BedGraph] [25kb Loops BedGraph] [Chromosome] [Size of Biggest Chromsome]" WaveTAD.R  WaveTAD_[Chromsome].Rout
 ```
 
 Use WaveTAD to Call TADs for each Chromsome Independently (big genomes):
