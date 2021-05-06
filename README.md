@@ -71,8 +71,7 @@ Example Output:
 |575| 3R | 26060150 | 28348436 | 0.0499273033452901 | 0.0469873372726448 | 0.00158143171430386 | 0.00000370996137707221 |
 
 ## Complete Walkthrough (eta ) (SRR1658528)
-Download SRA File:
-SRA Number = 1658528
+SRA Number: 1658528
 
 Download Reference File: 
 [Reference](https://www.dropbox.com/s/9w2tnfa650ebh99/dmel-all-chromosome-r6.26.main.chr.10-5-19.fasta?dl=0)
@@ -93,18 +92,18 @@ Index Reference:
 $ bwa index [Reference]
 ```
 
-Map Reads
+Map Reads:
 ```bash
 $ bwa mem -t 56 -E 50 -L 0 [Reference] [FASTQ1] | samtools view --threads 56 -bS - -o [BAM1]
 $ bwa mem -t 56 -E 50 -L 0 [Reference] [FASTQ2] | samtools view --threads 56 -bS - -o [BAM2]
 ```
 
-Calulate Coverage
+Calulate Coverage:
 ```bash
 $ sh WaveCov.sh [BAM1] [BAM2] [Chromosome Sizes All]
 ```
 
-Build Matrices (see note for big genomes)
+Build Matrices:
 ```bash
 $ hicFindRestSite -f [Reference] -p [Restriction Enzyme Sequence] -o [Restriction Enzyme Sites]
 $ hicBuildMatrix -s [BAM1] [BAM2] -bs 1000 -o [1kb Matrix] --skipDuplicationCheck --QCfolder [Output Directory/qcfolder1] --threads 8 -rs [Restriction Enzyme Sites] -seq [Restriction Enzyme Sequence] --danglingSequence [Dangling Sequence]
@@ -114,7 +113,7 @@ $ hicBuildMatrix -s [BAM1] [BAM2] -bs 25000 -o [25kb Matrix] --skipDuplicationCh
 $ hicBuildMatrix -s [BAM1] [BAM2] -bs 50000 -o [50kb Matrix] --skipDuplicationCheck --QCfolder [Output Directory/qcfolder5] --threads 8 -rs [Restriction Enzyme Sites] -seq [Restriction Enzyme Sequence] --danglingSequence [Dangling Sequence]
 ```
 
-Detect Loops (see note for big genomes)
+Detect Loops:
 ```bash
 $ hicDetectLoops -m [1kb Matrix] -o [1kb Loops BedGraph] --chromosomes [Chromosomes] -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
 $ hicDetectLoops -m [5kb Matrix] -o [5kb Loops BedGraph] --chromosomes [Chromosomes] -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
@@ -123,7 +122,7 @@ $ hicDetectLoops -m [25kb Matrix] -o [25kb Loops BedGraph] --chromosomes [Chromo
 $ hicDetectLoops -m [50kb Matrix] -o [50kb Loops BedGraph] --chromosomes [Chromosomes] -p 1 -pw 2 -w 5 -pp 0.1 -pit 10 -oet 1.5 --maxLoopDistance 5000000
 ```
 
-Correct Matrices (see note for big genomes)
+Correct Matrices:
 ```bash
 $ hicCorrectMatrix correct --matrix [1kb Matrix] --chromosomes [Chromosomes] -o [1kb Corrected Matrix]
 $ hicCorrectMatrix correct --matrix [5kb Matrix] --chromosomes [Chromosomes] -o [5kb Corrected Matrix]
@@ -132,7 +131,7 @@ $ hicCorrectMatrix correct --matrix [25kb Matrix] --chromosomes [Chromosomes] -o
 $ hicCorrectMatrix correct --matrix [50kb Matrix] --chromosomes [Chromosomes] -o [50kb Corrected Matrix]
 ```
 
-Normalize Matrices (see note for big genomes)
+Normalize Matrices:
 ```bash
 $ hicNormalize -m [1kb Corrected Matrix] --normalize norm_range -o [1kb Normalized Matrix]
 $ hicNormalize -m [5kb Corrected Matrix] --normalize norm_range -o [5kb Normalized Matrix]
@@ -141,7 +140,7 @@ $ hicNormalize -m [25kb Corrected Matrix] --normalize norm_range -o [25kb Normal
 $ hicNormalize -m [50kb Corrected Matrix] --normalize norm_range -o [50kb Normalized Matrix]
 ```
 
-Convert Matrices to Tables (see note for big genomes)
+Convert Matrices to Tables:
 ```bash
 $ cooler dump -t pixels --header --join [1kb Normalized Matrix] -o [1kb Contacts Table]
 $ cooler dump -t pixels --header --join [5kb Normalized Matrix] -o [5kb Contacts Table]
@@ -150,7 +149,7 @@ $ cooler dump -t pixels --header --join [25kb Normalized Matrix] -o [25kb Contac
 $ cooler dump -t pixels --header --join [50kb Normalized Matrix] -o [50kb Contacts Table]
 ```
 
-Generate Diamond Area Scores (see note for big genomes)
+Generate Diamond Area Scores:
 ```bash
 $ R CMD BATCH --no-save --no-restore "--args [1kb Contacts Table] [1kb TopDom Matrix] [1kb TopDom Scores] 1000 [Chromsome Sizes All]" topdom.R
 $ R CMD BATCH --no-save --no-restore "--args [5kb Contacts Table] [5kb TopDom Matrix] [5kb TopDom Scores] 5000 [Chromsome Sizes All]" topdom.R
@@ -159,14 +158,14 @@ $ R CMD BATCH --no-save --no-restore "--args [25kb Contacts Table] [25kb TopDom 
 $ R CMD BATCH --no-save --no-restore "--args [50kb Contacts Table] [50kb TopDom Matrix] [50kb TopDom Scores] 50000 [Chromsome Sizes All]" topdom.R
 ```
 
-Use WaveTAD to Call TADs for each Chromsome Independently (small genomes and for this example)
+Use WaveTAD to Call TADs for each Chromsome Independently (small genomes and for this example):
 ```bash
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage for Specific Chromosome]
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage for Specific Chromosome]
 $ R CMD BATCH --no-save --no-restore "--args [Left Coverage for Specific Chromosome] [Right Coverage for Specific Chromosome] [WaveTAD Results] [1kb TopDom Scores] [5kb TopDom Scores] [10kb TopDom Scores] [25kb TopDom Scores] [1kb Loops BedGraph] [5kb Loops BedGraph] [10kb Loops BedGraph] [25kb Loops BedGraph] [Chromosome] [Size of Biggest Chromsome]" WaveTAD.R  WaveTAD_[Chromsome].Rout
 ```
 
-Use WaveTAD to Call TADs for each Chromsome Independently (big genomes)
+Use WaveTAD to Call TADs for each Chromsome Independently (big genomes):
 ```bash
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage Chromosome]
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage Chromosome]
