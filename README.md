@@ -25,6 +25,7 @@ $ conda install samtools -c bioconda
 $ conda install bedtools -c bioconda
 $ conda install sra-tools -c bioconda
 $ conda install hicexplorer -c bioconda -c conda-forge
+$ conda install pandas=1.1.5
 ```
 
 Install R packages
