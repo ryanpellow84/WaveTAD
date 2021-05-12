@@ -86,12 +86,3 @@ write.table(right_contacts_sam, output_bed1, col.names = FALSE,
 write.table(left_contacts_sam, output_bed2, col.names = FALSE,
             row.names = FALSE, quote = FALSE, na = "", sep = "\t")
 
-# header <- read.delim(file5, stringsAsFactors = FALSE, header = FALSE)
-# header <- header[c(1:6,8),]
-# write.table(header,
-#             file5,
-#             col.names = FALSE,
-#             row.names = FALSE,
-#             quote = FALSE,
-#             na = "",
-#             sep = "\t")

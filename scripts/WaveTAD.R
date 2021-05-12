@@ -21,13 +21,10 @@ library(scales)
 library(wavelets)
 library(matrixStats)
 library(reshape2)
-library(gridExtra)
-library(eulerr)
 library(IRanges)
 library(plyr)
 library(dplyr)
 library(stringi)
-library(iotools)
 options(scipen = 10)
 
 #### WUBBA Pairing Function ####

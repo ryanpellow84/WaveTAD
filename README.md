@@ -31,7 +31,6 @@ $ R
 > if(!requireNamespace("BiocManager", quietly=TRUE))
 	install.packages("BiocManager")
 > BiocManager::install("IRanges")
-> install.packages("iotools")
 > quit()
 ```
 
