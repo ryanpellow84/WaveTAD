@@ -12,6 +12,11 @@ $ conda create -n WaveTAD python=3.8
 $ conda activate WaveTAD
 ```
 
+Clone WaveTAD
+```bash
+$ git clone https://github.com/ryanpellow84/WaveTAD.git
+```
+
 Install packages
 ```bash
 $ conda install -c r r-essentials
