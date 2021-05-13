@@ -19,13 +19,12 @@ $ git clone https://github.com/ryanpellow84/WaveTAD.git
 
 Install packages
 ```bash
-$ conda install -c r r-essentials
-$ conda install bwa -c bioconda
-$ conda install samtools -c bioconda
-$ conda install bedtools -c bioconda
-$ conda install sra-tools -c bioconda
-$ conda install hicexplorer -c bioconda -c conda-forge
-$ conda install pandas=1.1.5
+$ conda install r-essentials=3.6.0
+$ conda install bwa=0.7.17
+$ conda install samtools=1.12
+$ conda install bedtools=2.30.0
+$ conda install sra-tools=2.11.0
+$ conda install hicexplorer=3.6
 ```
 
 Install R packages
@@ -37,6 +36,7 @@ $ R
 > if(!requireNamespace("BiocManager", quietly=TRUE))
 	install.packages("BiocManager")
 > BiocManager::install("IRanges")
+> install.packages("iotools")
 > quit()
 ```
 
