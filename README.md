@@ -6,25 +6,16 @@ WaveTAD Ryan Pellow and Josep Comeron
 
 ## Installation
 
-Create conda environment
-```bash
-$ conda create -n WaveTAD python=3.8
-$ conda activate WaveTAD
-```
-
 Clone WaveTAD
 ```bash
 $ git clone https://github.com/ryanpellow84/WaveTAD.git
+$ cd [path]/WaveTAD/scripts
 ```
 
-Install packages
+Create conda environment
 ```bash
-$ conda install r-essentials=3.6.0
-$ conda install bwa=0.7.17
-$ conda install samtools=1.12
-$ conda install bedtools=2.30.0
-$ conda install sra-tools=2.11.0
-$ conda install hicexplorer=3.6
+$ conda env create -f WaveTAD.yaml
+$ conda activate WaveTAD
 ```
 
 Install R packages
@@ -74,7 +65,7 @@ Example Output:
 | ... | ... | ... | ... | ... | ... | ... | ... |
 | 578 | 3R | 26060150 | 28348436 | 0.0499273033452901 | 0.0469873372726448 | 0.00158143171430386 | 0.00000370996137707221 |
 
-## Complete Walkthrough (eta ) (SRR1658528)
+## Complete Walkthrough (SRR1658528)
 SRA Number: 1658528
 
 Download Reference File: 
@@ -170,6 +161,7 @@ $ R CMD BATCH --no-save --no-restore "--args [Left Coverage Chromosome] [Right C
 ```
 
 Use WaveTAD to Call TADs for each Chromsome Independently (big genomes):
+* For chromosomes larger than 200Mb, we recommend splitting the chromosome
 ```bash
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Left Coverage File] > [Left Coverage Chromosome]
 $ awk -v myvar="[Chromosome]" '$1==myvar' [Right Coverage File] > [Right Coverage Chromosome]
