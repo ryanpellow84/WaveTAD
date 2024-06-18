@@ -51,6 +51,7 @@ $ bwa index [Reference]
 ```
 
 Execute WaveTAD:
+* WaveTAD must be run from within the scripts directory
 * WaveTAD will create output files in directory containing FASTQ files
 ```bash
 $ sh WaveTAD.sh [FASTQ1] [FASTQ2] [Reference] [Chromosome Size 3R only] [QC Directory] [Restriction Enzyme Sequence] [Dangling Sequence]
