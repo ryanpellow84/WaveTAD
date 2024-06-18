@@ -9,7 +9,7 @@ WaveTAD Ryan Pellow and Josep Comeron
 Clone WaveTAD
 ```bash
 $ git clone https://github.com/ryanpellow84/WaveTAD.git
-$ cd [path]/WaveTAD/scripts
+$ cd WaveTAD/scripts
 ```
 
 Create conda environment
@@ -51,8 +51,9 @@ $ bwa index [Reference]
 ```
 
 Execute WaveTAD:
+* WaveTAD will create output files in directory containing FASTQ files
 ```bash
-$ sh WaveTAD.sh [FASTQ1] [FASTQ2] [Reference] [Chromosome Size 3R only] [Output Directory] [Restriction Enzyme Sequence] [Dangling Sequence]
+$ sh WaveTAD.sh [FASTQ1] [FASTQ2] [Reference] [Chromosome Size 3R only] [QC Directory] [Restriction Enzyme Sequence] [Dangling Sequence]
 ```
 
 Example Output:
