@@ -517,19 +517,17 @@ wubba_pairing <- function(left_cov,
     print(paste("      Anchor Pairs Dataframe Size:", nrow(anchor_pairs_df_sub)))
     print(paste("      System Time:", Sys.time()))
     
-    if (nrow(anchor_pairs_df_sub) != 0){
-      anchor_topdom_df <- topdom_collab_pre(anchor_pairs_input = anchor_pairs_df_sub,
-                                            chromosome = chr,
-                                            topdom_input_files = topdom_input_files,
-                                            bin_vec = bin_vec,
-                                            resolution_vec = resolution_vec,
-                                            error_val = error_val)
-      anchor_topdom_df <- anchor_topdom_df[,c(10,11,3:6)]
-      colnames(anchor_topdom_df) <- c("Start", "End", "Pval1", "Pval2", "Pval", "AncPval")
-      anchor_pairs_df <- rbind(anchor_pairs_df, anchor_topdom_df)
-      print(paste("      Anchor TopDom Pairs Dataframe Size:", nrow(anchor_pairs_df)))
-      print(paste("      System Time:", Sys.time()))
-    }
+    anchor_topdom_df <- topdom_collab_pre(anchor_pairs_input = anchor_pairs_df_sub,
+                                          chromosome = chr,
+                                          topdom_input_files = topdom_input_files,
+                                          bin_vec = bin_vec,
+                                          resolution_vec = resolution_vec,
+                                          error_val = error_val)
+    anchor_topdom_df <- anchor_topdom_df[,c(10,11,3:6)]
+    colnames(anchor_topdom_df) <- c("Start", "End", "Pval1", "Pval2", "Pval", "AncPval")
+    anchor_pairs_df <- rbind(anchor_pairs_df, anchor_topdom_df)
+    print(paste("      Anchor TopDom Pairs Dataframe Size:", nrow(anchor_pairs_df)))
+    print(paste("      System Time:", Sys.time()))
   }
   return(anchor_pairs_df)
 }
