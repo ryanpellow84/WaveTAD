@@ -369,11 +369,6 @@ wubba_pairing <- function(left_cov,
         count_right <- length(anchor_pairs_input_sub$Start)
       }
       print(paste(" Wubba and TopDom Pairing Pass Estimated Count:", est_count))
-      
-      if (est_count == 0){
-        next
-      }
-      
       while(length(start_vec) < length(anchor_pairs_input_sub$Start)){
         count <- count + 1
         #print(paste("Wubba and TopDom Pairing Pass:", count, "out of", est_count))
@@ -403,21 +398,13 @@ wubba_pairing <- function(left_cov,
       # Add to hits
       wubba_topdom_domains <- rbind(wubba_topdom_domains, anchor_pairs_input_sub)
     }
-    
-    if (nrow(wubba_topdom_domains) == 0){
-      return(wubba_topdom_domains)
-    }
-    
     # Remove bad domains where Start is equal to End
     wubba_topdom_domains <- wubba_topdom_domains[wubba_topdom_domains$Start < wubba_topdom_domains$End,]
     
     
     # Sort based on Error, Start, and End
     wubba_topdom_domains$Error <- wubba_topdom_domains$StartDiff + wubba_topdom_domains$EndDiff
-    
-    if (nrow(wubba_topdom_domains) != 0){
-      wubba_topdom_domains <- arrange(wubba_topdom_domains, Start, End, Error) 
-    }
+    wubba_topdom_domains <- arrange(wubba_topdom_domains, Start, End, Error)
     
     # Sort based on Pval, Start and End
     # wubba_topdom_domains <- arrange(wubba_topdom_domains, Start, End, Pval)
@@ -537,13 +524,11 @@ wubba_pairing <- function(left_cov,
                                             bin_vec = bin_vec,
                                             resolution_vec = resolution_vec,
                                             error_val = error_val)
-      if(nrow(anchor_topdom_df) != 0 ){
       anchor_topdom_df <- anchor_topdom_df[,c(10,11,3:6)]
       colnames(anchor_topdom_df) <- c("Start", "End", "Pval1", "Pval2", "Pval", "AncPval")
       anchor_pairs_df <- rbind(anchor_pairs_df, anchor_topdom_df)
       print(paste("      Anchor TopDom Pairs Dataframe Size:", nrow(anchor_pairs_df)))
       print(paste("      System Time:", Sys.time()))
-      }
     }
   }
   return(anchor_pairs_df)
@@ -655,11 +640,6 @@ topdom_collab <- function(anchor_pairs_input,
       count_right <- length(anchor_pairs_input_sub$Start)
     }
     print(paste(" Wubba and TopDom Pairing Pass Estimated Count:", est_count))
-    
-    if (est_count == 0){
-      next
-    }
-    
     while(length(start_vec) < length(anchor_pairs_input_sub$Start)){
       count <- count + 1
       start_vec <- c(start_vec, get_closest(anchor_pairs_input_sub$Start[count_left:count_right], topdom_domains_sub$Boundary))
@@ -686,21 +666,13 @@ topdom_collab <- function(anchor_pairs_input,
     # Add to hits
     wubba_topdom_domains <- rbind(wubba_topdom_domains, anchor_pairs_input_sub)
   }
-  
-  if (nrow(wubba_topdom_domains) == 0){
-    return(wubba_topdom_domains)
-  }
-  
   # Remove bad domains where Start is equal to End
   wubba_topdom_domains <- wubba_topdom_domains[wubba_topdom_domains$Start < wubba_topdom_domains$End,]
   
   
   # Sort based on Error, Start, and End
   wubba_topdom_domains$Error <- wubba_topdom_domains$StartDiff + wubba_topdom_domains$EndDiff
-  
-  if (nrow(wubba_topdom_domains) != 0){
   wubba_topdom_domains <- arrange(wubba_topdom_domains, Start, End, Error)
-  }
   
   # Sort based on Pval, Start and End
   # wubba_topdom_domains <- arrange(wubba_topdom_domains, Start, End, Pval)
